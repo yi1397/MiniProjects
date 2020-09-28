@@ -1,10 +1,20 @@
 #include <iostream>
+#include <opencv2/opencv.hpp>
 #include "serialcomm.h"
 
 int main() try {
 	SerialComm serialComm;
 
-	std::cout << "test" << std::endl;
+	cv::VideoCapture cap;
+
+	cv::Mat frame;
+
+	cap.open(0);
+
+	if (!cap.isOpened())
+	{
+		throw "unable to open camera";
+	}
 
 	if (!serialComm.connect("COM25"))
 	{
@@ -13,6 +23,19 @@ int main() try {
 
 	while (1)
 	{
+
+		cap.read(frame);
+
+		if (frame.empty())
+		{
+			throw "blank frame grabbed";
+		}
+
+		cv::imshow("Live", frame);
+
+		if (cv::waitKey(1) == 27)
+			break;
+
 		const char* str = "test";
 		if (!serialComm.sendCommand(str))
 		{
