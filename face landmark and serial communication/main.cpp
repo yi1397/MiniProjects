@@ -14,8 +14,8 @@
 #define HEAD_SHAKE_CNT 5
 
 #define EYE_BLINK_T 2000
-#define EYE_BLINK_CNT 3
-#define EYE_CLOSED 150
+#define EYE_BLINK_CNT 4
+#define EYE_CLOSED 100
 
 int main() try {
 	SerialComm serialComm;
