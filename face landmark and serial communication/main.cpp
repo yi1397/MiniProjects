@@ -82,7 +82,7 @@ int main() try {
 
 					if (EYE_BLINK_CNT < eyeBlink.size())
 					{
-						serialComm.sendCommand("blinked\n");
+						serialComm.sendCommand("blinked\n\r");
 					}
 				}
 
@@ -114,7 +114,7 @@ int main() try {
 
 				if (HEAD_SHAKE_CNT < headShake.size())
 				{
-					serialComm.sendCommand("shaked\n");
+					serialComm.sendCommand("shaked\n\r");
 				}
 			}
 
