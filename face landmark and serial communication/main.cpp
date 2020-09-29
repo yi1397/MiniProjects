@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <time.h>
+#include <vector>
 #include "serialcomm.h"
 #include "feature.h"
 
@@ -11,13 +12,12 @@
 int main() try {
 	SerialComm serialComm;
 
+	std::vector<std::pair<bool, time_t>> headShake;
+
 	cv::VideoCapture cap;
 
 	cv::Mat frame;
 
-	int eyes_blink_cnt = 0;
-
-	bool eyes_close = false;
 
 	dlib::frontal_face_detector faceDetector = dlib::get_frontal_face_detector();
 	dlib::shape_predictor landmarkDetector;
@@ -56,9 +56,9 @@ int main() try {
 		{
 			dlib::full_object_detection faceLandmark = landmarkDetector(dlib_img, faces_pos.front());
 
-			if (isEyeBlinked(faceLandmark))
+			if (isEyeClosed(faceLandmark))
 			{
-				const char* str = "´« ±ôºýÀÓ";
+				const char* str = "closed";
 				if (!serialComm.sendCommand(str))
 				{
 					throw "send command failed";
@@ -67,6 +67,21 @@ int main() try {
 
 			//Æ¯Â¡Á¡µéÀ» ±×·ÁÁÜ
 			drawPolylines(frame, faceLandmark);
+		}
+
+		if (headShake.front().first != faces_pos.empty())
+		{
+
+		}
+
+		if (headShake.size() > 5)
+		{
+			const char* str = "shaked";
+			if (!serialComm.sendCommand(str))
+			{
+				throw "send command failed";
+			}
+		}
 		}
 
 		cv::imshow("Live", frame);
