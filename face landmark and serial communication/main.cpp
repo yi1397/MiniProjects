@@ -4,15 +4,17 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <time.h>
-#include <vector>
+#include <list>
 #include "serialcomm.h"
 #include "feature.h"
+
+#define PORT_NUM "COM25"
 
 
 int main() try {
 	SerialComm serialComm;
 
-	std::vector<std::pair<bool, time_t>> headShake;
+	std::list<std::pair<bool, time_t>> headShake;
 
 	cv::VideoCapture cap;
 
@@ -24,7 +26,7 @@ int main() try {
 	dlib::deserialize("shape_predictor_68_face_landmarks.dat") >> landmarkDetector;
 
 
-	if (!serialComm.connect("COM25"))
+	if (!serialComm.connect(PORT_NUM))
 	{
 		throw "connect faliled";
 	}
@@ -69,9 +71,21 @@ int main() try {
 			drawPolylines(frame, faceLandmark);
 		}
 
-		if (headShake.front().first != faces_pos.empty())
+		if (headShake.empty())
 		{
+			headShake.push_front(std::make_pair(faces_pos.empty(), clock()));
+		}
+		else
+		{
+			if (headShake.front().first != faces_pos.empty())
+			{
+				headShake.push_front(std::make_pair(faces_pos.empty(), clock()));
+			}
 
+			if (clock() - headShake.back().second > 2000)
+			{
+				headShake.pop_back();
+			}
 		}
 
 		if (headShake.size() > 5)
@@ -81,7 +95,6 @@ int main() try {
 			{
 				throw "send command failed";
 			}
-		}
 		}
 
 		cv::imshow("Live", frame);
