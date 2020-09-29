@@ -5,30 +5,8 @@
 #include <iostream>
 #include <time.h>
 #include "serialcomm.h"
+#include "feature.h"
 
-
-void drawPolyline(cv::Mat& image, dlib::full_object_detection landmarks, int start, int end, bool isClosed = false)
-{
-	std::vector<cv::Point> points;
-	for (int i = start; i <= end; i++)
-	{
-		points.push_back(cv::Point(landmarks.part(i).x(), landmarks.part(i).y()));
-	}
-	cv::polylines(image, points, isClosed, cv::Scalar(0, 255, 255), 2, 16);
-}
-
-void drawPolylines(cv::Mat& image, dlib::full_object_detection landmarks)
-{
-	drawPolyline(image, landmarks, 0, 16);              //ÅÎ¼±
-	drawPolyline(image, landmarks, 17, 21);             //¿Þ ´«½ç
-	drawPolyline(image, landmarks, 22, 26);             //¿À¸¥ ´«½ç
-	drawPolyline(image, landmarks, 27, 30);             //ÄÚ À§ÂÊ
-	drawPolyline(image, landmarks, 30, 35, true);       //ÄÚ ¾Æ·¡ÂÊ
-	drawPolyline(image, landmarks, 36, 41, true);       //¿Þ´«
-	drawPolyline(image, landmarks, 42, 47, true);       //¿À¸¥´«
-	drawPolyline(image, landmarks, 48, 59, true);       //ÀÔ¼ú
-	drawPolyline(image, landmarks, 60, 67, true);       //ÀÔ¼ú
-}
 
 int main() try {
 	SerialComm serialComm;
@@ -78,6 +56,15 @@ int main() try {
 		{
 			dlib::full_object_detection faceLandmark = landmarkDetector(dlib_img, faces_pos.front());
 
+			if (isEyeBlinked(faceLandmark))
+			{
+				const char* str = "´« ±ôºýÀÓ";
+				if (!serialComm.sendCommand(str))
+				{
+					throw "send command failed";
+				}
+			}
+
 			//Æ¯Â¡Á¡µéÀ» ±×·ÁÁÜ
 			drawPolylines(frame, faceLandmark);
 		}
@@ -85,13 +72,10 @@ int main() try {
 		cv::imshow("Live", frame);
 
 		if (cv::waitKey(1) == 27)
-			break;
-
-		const char* str = "test";
-		if (!serialComm.sendCommand(str))
 		{
-			throw "send command failed";
+			break;
 		}
+
 	}
 
 	serialComm.disconnect();
