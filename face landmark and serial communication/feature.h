@@ -73,7 +73,7 @@ auto isEyeClosed(dlib::full_object_detection& landmarks, int threshold)->bool
 		sum += getAngle(features);
 	}
 
-	std::cout << sum << std::endl;
+	//std::cout << sum << std::endl;
 
 	if (sum < threshold) return true;
 

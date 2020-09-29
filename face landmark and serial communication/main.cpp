@@ -8,6 +8,8 @@
 #include "serialcomm.h"
 #include "feature.h"
 
+#define DRAW_LANDMARKS false
+
 #define PORT_NUM "COM25"
 
 #define HEAD_SHAKE_T 2000
@@ -90,8 +92,10 @@ int main() try {
 				}
 			}
 
+#if DRAW_LANDMARKS
 			//Æ¯Â¡Á¡µéÀ» ±×·ÁÁÜ
 			drawPolylines(frame, faceLandmark);
+#endif
 		}
 		else
 		{
