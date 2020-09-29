@@ -68,7 +68,7 @@ int main() try {
 
 			bool eyeState = isEyeClosed(faceLandmark, EYE_CLOSED);
 
-			if (eyeBlink.empty)
+			if (eyeBlink.empty())
 			{
 				eyeBlink.push_front(std::make_pair(eyeState, clock()));
 			}

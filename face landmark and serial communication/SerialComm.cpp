@@ -24,16 +24,15 @@ int SerialComm::sendCommand(char pos) //데이터를 전송하는 함수
 		return RETURN_FAIL;
 }
 
-int SerialComm::sendCommand(const char* pos)
+void SerialComm::sendCommand(const char* pos)
 {
 	for (int i = 0; i < sizeof(pos); i++)
 	{
 		if (!SerialComm::sendCommand(pos[i]))
 		{
-			return RETURN_FAIL;
+			throw "send command failed";
 		}
 	}
-	return RETURN_SUCCESS;
 }
 
 void SerialComm::disconnect() //포트를 다 쓰고 난뒤 닫는 함수

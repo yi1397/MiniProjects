@@ -14,6 +14,6 @@ public:
 	SerialPort	serial;
 	int		connect(const char* _portNum);
 	int		sendCommand(char pos);
-	int		sendCommand(const char* pos);
-	void		disconnect();
+	void	sendCommand(const char* pos);
+	void	disconnect();
 };
