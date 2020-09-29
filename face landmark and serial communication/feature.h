@@ -8,9 +8,9 @@
 typedef std::array<int, 3> points;
 
 auto drawPolyline(
-	cv::Mat& image, 
-	dlib::full_object_detection landmarks,
-	int start, int end, 
+	cv::Mat& image,
+	dlib::full_object_detection& landmarks,
+	int start, int end,
 	bool isClosed = false
 )->void
 {
@@ -24,7 +24,7 @@ auto drawPolyline(
 
 auto drawPolylines(
 	cv::Mat& image,
-	dlib::full_object_detection landmarks
+	dlib::full_object_detection& landmarks
 )->void
 {
 	drawPolyline(image, landmarks, 0, 16);              //ÅÎ¼±
@@ -38,7 +38,7 @@ auto drawPolylines(
 	drawPolyline(image, landmarks, 60, 67, true);       //ÀÔ¼ú
 }
 
-auto getAngle(std::vector<cv::Point> features)->double
+auto getAngle(std::vector<cv::Point>& features)->double
 {
 	double a, b, c;
 	double angle;
@@ -53,7 +53,7 @@ auto getAngle(std::vector<cv::Point> features)->double
 	return angle;
 }
 
-auto isEyeClosed(dlib::full_object_detection landmarks)->bool
+auto isEyeClosed(dlib::full_object_detection& landmarks, int threshold)->bool
 {
 	std::vector<points> points_datas;
 
@@ -75,7 +75,7 @@ auto isEyeClosed(dlib::full_object_detection landmarks)->bool
 
 	//std::cout << sum << std::endl;
 
-	if (sum < 150) return true;
+	if (sum < threshold) return true;
 
 	return false;
 }

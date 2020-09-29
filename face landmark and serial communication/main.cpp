@@ -10,9 +10,17 @@
 
 #define PORT_NUM "COM25"
 
+#define HEAD_SHAKE_T 2000
+#define HEAD_SHAKE_CNT 5
+
+#define EYE_BLINK_T 2000
+#define EYE_BLINK_CNT 3
+#define EYE_CLOSED 150
 
 int main() try {
 	SerialComm serialComm;
+
+	std::list<std::pair<bool, time_t>> eyeBlink;
 
 	std::list<std::pair<bool, time_t>> headShake;
 
@@ -58,17 +66,36 @@ int main() try {
 		{
 			dlib::full_object_detection faceLandmark = landmarkDetector(dlib_img, faces_pos.front());
 
-			if (isEyeClosed(faceLandmark))
+			bool eyeState = isEyeClosed(faceLandmark, EYE_CLOSED);
+
+			if (eyeBlink.empty)
 			{
-				const char* str = "closed";
-				if (!serialComm.sendCommand(str))
+				eyeBlink.push_front(std::make_pair(eyeState, clock()));
+			}
+			else
+			{
+				if (eyeBlink.front().first != eyeState)
 				{
-					throw "send command failed";
+					eyeBlink.push_front(std::make_pair(eyeState, clock()));
+
+					if (EYE_BLINK_CNT < eyeBlink.size())
+					{
+						serialComm.sendCommand("blinked");
+					}
+				}
+
+				if (EYE_BLINK_T < clock() - eyeBlink.back().second)
+				{
+					eyeBlink.pop_back();
 				}
 			}
 
 			//Æ¯Â¡Á¡µéÀ» ±×·ÁÁÜ
 			drawPolylines(frame, faceLandmark);
+		}
+		else
+		{
+			eyeBlink.clear();
 		}
 
 		if (headShake.empty())
@@ -80,20 +107,16 @@ int main() try {
 			if (headShake.front().first != faces_pos.empty())
 			{
 				headShake.push_front(std::make_pair(faces_pos.empty(), clock()));
+
+				if (HEAD_SHAKE_CNT < headShake.size())
+				{
+					serialComm.sendCommand("shaked");
+				}
 			}
 
-			if (clock() - headShake.back().second > 2000)
+			if (HEAD_SHAKE_T < clock() - headShake.back().second)
 			{
 				headShake.pop_back();
-			}
-		}
-
-		if (headShake.size() > 5)
-		{
-			const char* str = "shaked";
-			if (!serialComm.sendCommand(str))
-			{
-				throw "send command failed";
 			}
 		}
 
