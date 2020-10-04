@@ -7,24 +7,31 @@
 #include <list>
 #include "serialcomm.h"
 #include "feature.h"
+#include "commands.h"
 
 #define DRAW_LANDMARKS false
 
 #define PORT_NUM "COM25"
 
-#define HEAD_SHAKE_T 2000
-#define HEAD_SHAKE_CNT 5
-
-#define EYE_BLINK_T 2000
-#define EYE_BLINK_CNT 4
 #define EYE_CLOSED 100
 
+#define COMMAND_TIME 2000
+
+std::map<command_t, const char*> commands;
+
 int main() try {
+
+	command_init();
+
 	SerialComm serialComm;
 
-	std::list<std::pair<bool, time_t>> eyeBlink;
+	bool eyeState;
 
-	std::list<std::pair<bool, time_t>> headShake;
+	bool headState;
+
+	std::list<clock_t> commandTime;
+
+	unsigned int command = 0;
 
 	cv::VideoCapture cap;
 
@@ -68,65 +75,45 @@ int main() try {
 		{
 			dlib::full_object_detection faceLandmark = landmarkDetector(dlib_img, faces_pos.front());
 
-			bool eyeState = isEyeClosed(faceLandmark, EYE_CLOSED);
-
-			if (eyeBlink.empty())
+			if (headState == false)
 			{
-				eyeBlink.push_front(std::make_pair(eyeState, clock()));
-			}
-			else
-			{
-				if (eyeBlink.front().first != eyeState)
+				if (commandTime.size() != sizeof(unsigned int) * 8)
 				{
-					eyeBlink.push_front(std::make_pair(eyeState, clock()));
-
-					if (EYE_BLINK_CNT < eyeBlink.size())
-					{
-						serialComm.sendCommand("blinked");
-
-						eyeBlink.clear();
-					}
+					commandTime.push_front(clock());
+					command |= 1 << commandTime.size();
 				}
 
-				if (EYE_BLINK_T < clock() - eyeBlink.back().second)
-				{
-					eyeBlink.pop_back();
-				}
+				headState = true;
 			}
+
+			else if (eyeState != isEyeClosed(faceLandmark, EYE_CLOSED))
+			{
+				if (commandTime.size() != sizeof(unsigned int) * 8)
+				{
+					commandTime.push_front(clock());
+				}
+				eyeState = !eyeState;
+			}
+
+			if (COMMAND_TIME < clock() - commandTime.back())
+			{
+				command = command >> 1;
+				commandTime.pop_back();
+			}
+			
 
 #if DRAW_LANDMARKS
 			//Æ¯Â¡Á¡µéÀ» ±×·ÁÁÜ
 			drawPolylines(frame, faceLandmark);
 #endif
 		}
+
 		else
 		{
-			eyeBlink.clear();
+			headState = false;
 		}
 
-		if (headShake.empty())
-		{
-			headShake.push_front(std::make_pair(faces_pos.empty(), clock()));
-		}
-		else
-		{
-			if (headShake.front().first != faces_pos.empty())
-			{
-				headShake.push_front(std::make_pair(faces_pos.empty(), clock()));
-
-				if (HEAD_SHAKE_CNT < headShake.size())
-				{
-					serialComm.sendCommand("shaked");
-
-					headShake.clear();
-				}
-			}
-
-			if (HEAD_SHAKE_T < clock() - headShake.back().second)
-			{
-				headShake.pop_back();
-			}
-		}
+		
 
 		cv::imshow("Live", frame);
 
