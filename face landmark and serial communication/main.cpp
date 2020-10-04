@@ -7,7 +7,7 @@
 #include <list>
 #include "serialcomm.h"
 #include "feature.h"
-#include "commands.h"
+//#include "commands.h"
 
 #define DRAW_LANDMARKS false
 
@@ -17,11 +17,16 @@
 
 #define COMMAND_TIME 2000
 
-std::map<command_t, const char*> commands;
+//commands_t commands;
 
 int main() try {
 
-	command_init();
+	//command_init(commands);
+
+	std::vector<std::pair<std::pair<int, int>, const char*>> commands;
+
+	commands.push_back(std::make_pair(std::make_pair(1, 2), "문이 열립니다."));
+	commands.push_back(std::make_pair(std::make_pair(6, 3), "창문이 열립니다."));
 
 	SerialComm serialComm;
 
@@ -80,7 +85,7 @@ int main() try {
 				if (commandTime.size() != sizeof(unsigned int) * 8)
 				{
 					commandTime.push_front(clock());
-					command |= 1 << commandTime.size();
+					command |= 1 << (commandTime.size() - 1);
 				}
 
 				headState = true;
@@ -90,15 +95,12 @@ int main() try {
 			{
 				if (commandTime.size() != sizeof(unsigned int) * 8)
 				{
-					commandTime.push_front(clock());
+					if (eyeState)
+					{
+						commandTime.push_front(clock());
+					}
 				}
 				eyeState = !eyeState;
-			}
-
-			if (COMMAND_TIME < clock() - commandTime.back())
-			{
-				command = command >> 1;
-				commandTime.pop_back();
 			}
 			
 
@@ -113,8 +115,35 @@ int main() try {
 			headState = false;
 		}
 
+		if (commandTime.empty())
+		{
+			command = 0;
+		}
+		else if (COMMAND_TIME < clock() - commandTime.back())
+		{
+			command = command >> 1;
+			commandTime.pop_back();
+		}
+		/*
+		std::cout << "명령어 갯수" << commandTime.size() << std::endl;
+		std::cout << "명령어: " << command << std::endl;
 		
-
+		for (int i = 0; i < commandTime.size(); i++)
+		{
+			std::cout << ((command & (1 << i)) ? "고개흔듬 " : "눈 감빡임");
+		}
+		std::cout<<std::endl;
+		*/
+		for (const auto& command_data : commands)
+		{
+			if (command_data.first.first == command && command_data.first.second == commandTime.size())
+			{
+				std::cout << command_data.second << std::endl;
+				command = 0;
+				commandTime.clear();
+			}
+		}
+		
 		cv::imshow("Live", frame);
 
 		if (cv::waitKey(1) == 27)
