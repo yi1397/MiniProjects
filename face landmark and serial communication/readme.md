@@ -6,8 +6,11 @@ vector에 명령어들이 정의되어 있고 std::pair<std::pair<unsigned int, 
 명령어가 저장된 unsigned int자료형의 최하위 비트부터 왼쪽순서로 해석한다. 0은 눈깜빡이기 1은 고개흔들기이다. 명령어의 길이 만큼만 해석한다.
 ###### 예시
 commands.push_back(std::make_pair(std::make_pair(6, 3), "문이 열립니다"));
+
 6                   → 0b110 눈 감빡이고 고개 2번 흔들기
+
 3                   → 명령어의 정보가 몇비트인지
+
 "문이 열립니다"     → 명령어의 이름
 
 ## 전처리기
