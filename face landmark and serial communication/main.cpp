@@ -25,8 +25,11 @@ int main() try {
 
 	std::vector<std::pair<std::pair<int, int>, const char*>> commands;
 
-	commands.push_back(std::make_pair(std::make_pair(1, 2), "¹®ÀÌ ¿­¸³´Ï´Ù."));
-	commands.push_back(std::make_pair(std::make_pair(6, 3), "Ã¢¹®ÀÌ ¿­¸³´Ï´Ù."));
+	commands.push_back(std::make_pair(std::make_pair(225, 8), "1"));
+	commands.push_back(std::make_pair(std::make_pair(56, 7), "2"));
+	commands.push_back(std::make_pair(std::make_pair(4092, 15), "3"));
+	commands.push_back(std::make_pair(std::make_pair(63, 12), "4"));
+	commands.push_back(std::make_pair(std::make_pair(230399, 23), "5"));
 
 	SerialComm serialComm;
 
@@ -105,7 +108,7 @@ int main() try {
 			
 
 #if DRAW_LANDMARKS
-			//Æ¯Â¡Á¡µéÀ» ±×·ÁÁÜ
+			//íŠ¹ì§•ì ë“¤ì„ ê·¸ë ¤ì¤Œ
 			drawPolylines(frame, faceLandmark);
 #endif
 		}
@@ -125,12 +128,12 @@ int main() try {
 			commandTime.pop_back();
 		}
 		/*
-		std::cout << "¸í·É¾î °¹¼ö" << commandTime.size() << std::endl;
-		std::cout << "¸í·É¾î: " << command << std::endl;
+		std::cout << "ëª…ë ¹ì–´ ê°¯ìˆ˜" << commandTime.size() << std::endl;
+		std::cout << "ëª…ë ¹ì–´: " << command << std::endl;
 		
 		for (int i = 0; i < commandTime.size(); i++)
 		{
-			std::cout << ((command & (1 << i)) ? "°í°³Èçµë " : "´« °¨ºıÀÓ");
+			std::cout << ((command & (1 << i)) ? "ê³ ê°œí”ë“¬ " : "ëˆˆ ê°ë¹¡ì„");
 		}
 		std::cout<<std::endl;
 		*/
