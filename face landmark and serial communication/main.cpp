@@ -9,9 +9,7 @@
 #include "feature.h"
 //#include "commands.h"
 
-#define DRAW_LANDMARKS false
-
-#define PORT_NUM "COM25"
+#define DRAW_LANDMARKS true
 
 #define EYE_CLOSED 100
 
@@ -19,17 +17,15 @@
 
 //commands_t commands;
 
-int main() try {
+int main() try{
 
 	//command_init(commands);
 
 	std::vector<std::pair<std::pair<int, int>, const char*>> commands;
 
-	commands.push_back(std::make_pair(std::make_pair(225, 8), "1"));
-	commands.push_back(std::make_pair(std::make_pair(56, 7), "2"));
-	commands.push_back(std::make_pair(std::make_pair(4092, 15), "3"));
-	commands.push_back(std::make_pair(std::make_pair(63, 12), "4"));
-	commands.push_back(std::make_pair(std::make_pair(230399, 23), "5"));
+	commands.push_back(std::make_pair(std::make_pair(0, 2), "1"));
+	commands.push_back(std::make_pair(std::make_pair(3, 2), "2"));
+	commands.push_back(std::make_pair(std::make_pair(5, 4), "3"));
 
 	SerialComm serialComm;
 
@@ -44,6 +40,11 @@ int main() try {
 	cv::VideoCapture cap;
 
 	cv::Mat frame;
+	
+	std::string port_num;
+
+	std::cout << "port number : ";
+	std::cin >> port_num;
 
 
 	dlib::frontal_face_detector faceDetector = dlib::get_frontal_face_detector();
@@ -51,7 +52,7 @@ int main() try {
 	dlib::deserialize("shape_predictor_68_face_landmarks.dat") >> landmarkDetector;
 
 
-	if (!serialComm.connect(PORT_NUM))
+	if (!serialComm.connect(port_num.c_str()))
 	{
 		throw "connect faliled";
 	}
